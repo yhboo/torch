@@ -28,7 +28,9 @@ class Dense(nn.Module):
 
     def forward(self, x):
         if self.use_bias:
-            return F.m
+            return torch.mm(x, self.weight) + self.bias
+        else:
+            return torch.mm(x, self.weight)
 
 
     

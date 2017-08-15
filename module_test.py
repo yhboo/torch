@@ -12,6 +12,6 @@ y_tc = torch.from_numpy(x_np)
 print(x_np)
 print(x_tc)
 
-x_tc.mm(y_tc)
+z_tc = torch.mm(x_tc, y_tc)
 
-print(x_tc)
+print(z_tc)
