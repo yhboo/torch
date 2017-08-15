@@ -1,3 +1,6 @@
 ## Ignore file ##
 
 *.xml
+
+#pycharm project configurations
+.idea/
