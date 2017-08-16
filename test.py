@@ -71,13 +71,14 @@ def train_example():
                            transforms.ToTensor(),
                            transforms.Normalize((0.1307,), (0.3081,))
                        ])),
-        batch_size=batch_size, shuffle=True, **kwargs
+        batch_size=batch_size, shuffle=False, **kwargs
     )
 
 
     print(' --- data summary ---')
     print('n_train : ', len(train_loader.dataset))
     print('n_test : ', len(test_loader.dataset))
+    print('len_loader : ',len(train_loader))
     print(' ---------------------')
 
     model = model.cuda()

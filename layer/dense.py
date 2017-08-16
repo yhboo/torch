@@ -33,7 +33,6 @@ class Dense(nn.Module):
             return torch.mm(x, self.weight)
 
 
-    
 
 
 if __name__ == '__main__':
