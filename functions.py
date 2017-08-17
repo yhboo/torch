@@ -53,7 +53,7 @@ def eval_epoch(model, loader):
 
 def train_vanilla(
         model, optimizer, train_loader, test_loader,
-        model_path, model_name, log_path = None,
+        model_path, exp_name, log_path = None,
         lr = 0.0001, batch_size = 32, n_epoch = 30):
 
     log_loss = []
@@ -62,22 +62,62 @@ def train_vanilla(
         t_begin = time.time()
         print('---Epoch : ', e+1)
         train_loss, train_acc = train_epoch(model, optimizer, train_loader)
-        t_end = time.time()
-        print('training time : ', t_end - t_begin, ' (s)')
-        print('train loss : {:.6f}\t|\ttrain acc{:.6f}'.format(train_loss, train_acc))
-        log_loss.append(train_loss)
-        log_acc.append(train_acc)
-        t_begin = time.time()
         test_loss, test_acc = eval_epoch(model, test_loader)
         t_end = time.time()
-        print('test set inference time : ', t_end - t_begin, ' (s)')
-        print('test loss : {:.6f}\t|\ttest acc{:.6f}'.format(test_loss, test_acc))
 
-    torch.save(model.state_dict, model_path + model_name)
+        # epoch summary
+        print('train loss : {:.6f}\t|\ttrain acc : {:.6f}'.format(train_loss, train_acc))
+        print('test loss : {:.6f}\t|\ttest acc : {:.6f}'.format(test_loss, test_acc))
+        print('time : ', t_end - t_begin, ' (s)')
+
+        #stack log
+        log_loss.append(train_loss)
+        log_acc.append(train_acc)
+
+    torch.save(model.state_dict, model_path + exp_name)
     log_dict = {'loss' : log_loss, 'acc' : log_acc}
-    np.save(log_path + model_name + '_log.npy', log_dict)
+    if log_path is not None:
+        np.save(log_path + exp_name + '_log.npy', log_dict)
 
 
+def train_lr_per_epoch(
+        model, optimizer, train_loader, test_loader,
+        model_path, exp_name, log_path = None,
+        lr = None, batch_size = 32, n_epoch = 30):
+
+    if lr is None:
+        print('lr should be list or tuple with the same length of n_epoch')
+        raise NotImplementedError
+    elif len(lr) != n_epoch:
+        print('lr should be list or tuple with the same length of n_epoch')
+        raise NotImplementedError
+
+
+    log_loss = []
+    log_acc = []
+    for e in range(n_epoch):
+        for pg in optimizer.param_groups:
+            pg['lr'] = lr[e]
+        t_begin = time.time()
+        print('---Epoch : ', e+1)
+        print('lr : ', lr[e])
+        train_loss, train_acc = train_epoch(model, optimizer, train_loader)
+        test_loss, test_acc = eval_epoch(model, test_loader)
+        t_end = time.time()
+
+        # epoch summary
+        print('train loss : {:.6f}\t|\ttrain acc : {:.6f}'.format(train_loss, train_acc))
+        print('test loss : {:.6f}\t|\ttest acc : {:.6f}'.format(test_loss, test_acc))
+        print('time : ', t_end - t_begin, ' (s)')
+
+        #stack log
+        log_loss.append(train_loss)
+        log_acc.append(train_acc)
+
+    torch.save(model.state_dict, model_path + exp_name + '.pt')
+    log_dict = {'loss' : log_loss, 'acc' : log_acc}
+    if log_path is not None:
+        np.save(log_path + exp_name + '_log.npy', log_dict)
 
 
 def train_with_early_stopping(

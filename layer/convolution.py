@@ -5,6 +5,7 @@ from torch.nn.parameter import Parameter
 import numpy as np
 
 
+
 class Conv2D(nn.Module):
     def __init__(self, C_in, C_out, kernel_size, stride, mode = "same", dilation = 1, groups = 1, use_bias = True):
         """
@@ -34,8 +35,8 @@ class Conv2D(nn.Module):
             p_h = 0
             p_w = 0
         elif mode == "same":
-            p_h = np.floor(kernel_size[0] / 2).astype('int')
-            p_w = np.floor(kernel_size[1] / 2).astype('int')
+            p_h = np.floor(kernel_size[0] / 2).astype('int32')
+            p_w = np.floor(kernel_size[1] / 2).astype('int32')
         elif mode == "full":
             p_h = kernel_size[0]-1
             p_w = kernel_size[1]-1
@@ -43,10 +44,10 @@ class Conv2D(nn.Module):
             print('convolution type error!')
             raise NotImplementedError
 
-        self.padding = (p_h, p_w)
+        self.padding = (int(p_h), int(p_w))
 
 
-        self.weight = Parameter(torch.Tensor(C_in, C_out, kernel_size[0], kernel_size[1]))
+        self.weight = Parameter(torch.Tensor(C_out, C_in, kernel_size[0], kernel_size[1]))
         if use_bias:
             self.bias = Parameter(torch.Tensor(C_out))
         else:
