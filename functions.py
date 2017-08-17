@@ -102,12 +102,14 @@ def train_lr_per_epoch(
         print('---Epoch : ', e+1)
         print('lr : ', lr[e])
         train_loss, train_acc = train_epoch(model, optimizer, train_loader)
-        test_loss, test_acc = eval_epoch(model, test_loader)
+        if (e+1) % 10 == 0:
+            test_loss, test_acc = eval_epoch(model, test_loader)
         t_end = time.time()
 
         # epoch summary
         print('train loss : {:.6f}\t|\ttrain acc : {:.6f}'.format(train_loss, train_acc))
-        print('test loss : {:.6f}\t|\ttest acc : {:.6f}'.format(test_loss, test_acc))
+        if (e+1) % 10 == 0:
+            print('test loss : {:.6f}\t|\ttest acc : {:.6f}'.format(test_loss, test_acc))
         print('time : ', t_end - t_begin, ' (s)')
 
         #stack log
