@@ -12,11 +12,11 @@ class Config(object):
 
         self.torch_seed = 87654
 
-        self.wsj_path = '/home/khshim/data/wsj/'
-        self.save_path = './best_model_' + self.mode + '.pt'
-        self.batch_size = 64
+        self.wsj_path = './data/'
+        self.save_path = './clm/best_model_' + self.mode + '.pt'
+        self.batch_size = 1
         self.sequence_length = 128
-        self.eval_batch_size = 64
+        self.eval_batch_size = 1
 
         self.max_epoch = 1000
         self.max_change = 4

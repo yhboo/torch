@@ -65,9 +65,22 @@ def main(cfg):
     train_dataset = WSJDataset(train_data, cfg.batch_size, cfg.sequence_length)
     valid_dataset = WSJDataset(valid_data, cfg.eval_batch_size, cfg.sequence_length)
 
+
+
     """Set model"""
     model = Model(cfg.tied)
     model.cuda()
+    model.eval()
+
+    data, target = valid_dataset[0]
+    state = model.zero_state(valid_dataset.batch_size)
+    state = repackage_state(state)
+
+    print('data type : ', type(data))
+    print('data size : ', data.size())
+    print('state type : ', type(state[0]))
+    print('state size : ', state[0].size())
+    exit()
 
     """eval"""
     start_time = time.time()

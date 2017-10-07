@@ -8,7 +8,7 @@ def main():
     label_file = "test_eval92.trans"
     arpa_file = "data/WSJ_impkn.arpa"
     lm_weight = 0.6
-    word_bonus = 4.0
+    word_bonus = 2.5
     beam_width = 128
 
     print("---------configuration--------")

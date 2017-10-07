@@ -53,7 +53,8 @@ def ctc_greedy(am_out, blank_pos = 0):
 
 def ctc_beamsearch_tri_gram(am_out, lm, lm_weight = 0.6, word_bonus = 2, beam_width = 128, blank_pos = 0):
     '''   
-    :param am_out: am output before softmax, type : numpy array (n_frame, n_label) 
+    :param am_out: am output before softmax, type : numpy array (n_frame, n_label)
+    :param lm: list(5,1), [mono_prob, mono_backoff, bi_prob, bi_backoff, tri_prob]
     :param mono_prob: monogram prob, type : dict
     :param mono_backoff: monogram backoff weight, type : dict
     :param bi_prob: bigram prob, type : dict
@@ -150,6 +151,9 @@ def ctc_beamsearch_tri_gram(am_out, lm, lm_weight = 0.6, word_bonus = 2, beam_wi
                         pnb_ = np.logaddexp(pnb_, p_[0])
                         pb_ = np.logaddexp(pb_, p_[1])
 
+                    if len(l_.split(' ')[-1]) > 15:
+                        pnb_ += - 10.0
+                        pb_ += -10.0
                     A_next[l_] = np.asarray([pnb_, pb_], dtype='float32')
 
         A_prev = beam_scoring(A_next, beam_width)
