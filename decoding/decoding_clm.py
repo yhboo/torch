@@ -7,6 +7,37 @@ from collections import OrderedDict
 from decoding import logsoftmax, beam_scoring
 
 
+def ctc_simple_clm(char_probs, model, clm_weight = 0.6):
+    """
+    :param char_probs: (n_char, n_charset)
+    :param model: clm model
+    :param clm_weight: clm weight
+    :return: sentence hypothesis
+    """
+    charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ '.>"
+    idx_space = charset.find(' ')
+    idx_eos = charset.find('>')
+    idx_char = 0
+    predict = ""
+    last_char = ""
+    #am_max = np.argmax(char_probs, axis = 1)
+    n_char = char_probs.shape[0]
+    lm_probs = np.zeros((1,30), dtype = 'float32')
+    state = model.zero_state(1)
+    state = repackage_state(state)
+
+    space_flag_clm = False
+    space_flag_am = False
+    #run decoding with prior probs(lm)
+    while idx_char <n_char and last_char != charset[idx_eos]:
+        if space_flag_am or space_flag_clm or idx_char == (n_char-1):
+            this_label = 
+        this_label = np.argmax(char_probs[idx_char] + clm_weight * lm_probs).reshape(1,1)
+
+
+
+
+
 def repackage_state(s):
     return Variable(s[0].data), Variable(s[1].data)
     #return s[0].data, s[1].data

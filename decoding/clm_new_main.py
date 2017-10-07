@@ -11,12 +11,16 @@ import torch
 from clm.model import Model
 from clm.config import Config
 
+def softmax(x):
+    e_x = np.exp(x - np.max(x, axis=1)[:, np.newaxis])
+    out = e_x / np.sum(e_x, axis=1)[:, np.newaxis]
+    return out
 
 def frame_to_char(am_out, blank_pos = 0):
     """
     this function returns character level probability distribution
     :param am_out: (n_frame, n_label) np array
-    :return: (n_char, n_label) np array
+    :return: (n_char, n_charset) np array (n_charset = n_label - 1)
     """
     charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ '.>"
     idx_eos = charset.find('>')
@@ -30,37 +34,40 @@ def frame_to_char(am_out, blank_pos = 0):
         raise NotImplementedError
 
     max_labels = np.argmax(am_out, axis = 1)
-    blank_flag = True
-    predict = ""
+    am_softmax = softmax(am_out)
+    seg_char = np.zeros(T, dtype = 'int')
 
+    #avg of continuous argmax chars
+    idx_seg = 0
+    prev_label = -1
     for t in range(T):
-        if blank_flag:
-            # ab_ + b, ab_ + c case
-            if max_labels[t] != blank_pos:
-                if (max_labels[t] - idx_char_offset) == idx_eos:
-                    predict += ' </s>'
-                else:
-                    predict += charset[max_labels[t] - idx_char_offset]
-                blank_flag = False
-            # ab_ + _ case
-            else:
-                pass
+        if max_labels[t] == blank_pos:
+            prev_label = -1
         else:
-            # ab+ _ case
-            if max_labels[t] == blank_pos:
-                blank_flag = True
-            # ab+ b case
-            elif charset[max_labels[t] - idx_char_offset] == predict[-1]:
-                pass
-            # ab+c case
+            cur_label = max_labels[t] - idx_char_offset
+            if prev_label == cur_label:
+                seg_char[t] = idx_seg
             else:
-                if (max_labels[t] - idx_char_offset) == idx_eos:
-                    predict += ' </s>'
-                else:
-                    predict += charset[max_labels[t] - idx_char_offset]
+                idx_seg += 1
+                seg_char[t] = idx_seg
+                prev_label = cur_label
 
-    return predict
+    n_char = idx_seg
+    char_probs = np.zeros((n_char,n_label - 1), dtype = 'float32')
 
+    #remove blank
+    for i in range(n_char):
+        probs = am_softmax[seg_char == i+1]
+        p = np.mean(probs, axis = 0)
+        char_probs[i] = p[1:]
+
+    # #same with greedy result
+    # char_probs_max = np.argmax(char_probs, axis = 1)
+    # predict = ""
+    # for i in range(n_char):
+    #     predict+=charset[char_probs_max[i]]
+
+    return char_probs
 
 def main():
     #params
@@ -71,12 +78,13 @@ def main():
     char_bonus = 0.4
     beam_width = 128
 
+    '''
     #model setting
     cfg = Config()
     model = Model(cfg.tied)
     model.cuda()
     model.load_state_dict(torch.load(cfg.save_path))
-
+    '''
 
     print("---------configuration--------")
     print('clm weight : ',clm_weight)
@@ -88,6 +96,11 @@ def main():
 
     with open(label_file, 'r') as f:
         label_list = f.readlines()
+
+    n_sentence = len(am_out)
+    for i in range(1):
+        char_probs = frame_to_char(am_out[i])
+        print(np.sum(char_probs, axis = 1))
 
 
 if __name__ =='__main__':

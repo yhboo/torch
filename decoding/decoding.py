@@ -348,5 +348,7 @@ def logsoftmax(x):
     out = e_x / np.sum(e_x, axis=1)[:,np.newaxis]
     return np.log(out)
 
+
+
 if __name__ == '__main__':
     ctc_beamsearch()
