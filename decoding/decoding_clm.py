@@ -5,7 +5,7 @@ import numpy as np
 from collections import OrderedDict
 
 from decoding import logsoftmax, beam_scoring
-
+from utils import *
 
 def ctc_simple_clm(char_probs, model, clm_weight = 0.6):
     """
@@ -31,27 +31,9 @@ def ctc_simple_clm(char_probs, model, clm_weight = 0.6):
     #run decoding with prior probs(lm)
     while idx_char <n_char and last_char != charset[idx_eos]:
         if space_flag_am or space_flag_clm or idx_char == (n_char-1):
-            this_label = 
+            this_label =
         this_label = np.argmax(char_probs[idx_char] + clm_weight * lm_probs).reshape(1,1)
 
-
-
-
-
-def repackage_state(s):
-    return Variable(s[0].data), Variable(s[1].data)
-    #return s[0].data, s[1].data
-
-def char_to_label(s, charset):
-    s = s.replace('</s>', charset[-1])
-    n_seq = len(s)
-    label = np.zeros((n_seq,1), dtype = 'long')
-    for i in range(n_seq):
-        label[i] = charset.find(s[i])
-
-    #print(label.shape)
-    #print(label)
-    return label
 
 
 

@@ -10,11 +10,9 @@ import torch
 
 from clm.model import Model
 from clm.config import Config
+from utils import *
 
-def softmax(x):
-    e_x = np.exp(x - np.max(x, axis=1)[:, np.newaxis])
-    out = e_x / np.sum(e_x, axis=1)[:, np.newaxis]
-    return out
+
 
 def frame_to_char(am_out, blank_pos = 0):
     """
